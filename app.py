@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 
 st.set_page_config(page_title="Food Calorie App", layout="centered")
 
-st.title("🍎 Food Calorie Prediction App")
+st.title("🍎 Prashanthi's Apple Symbol Food Calorie Prediction App")
 
 # ------------------ SAMPLE DATA ------------------
 data = pd.DataFrame({
