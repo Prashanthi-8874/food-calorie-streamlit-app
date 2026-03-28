@@ -9,7 +9,6 @@ st.set_page_config(page_title="Food Calorie App", layout="centered")
 st.title("🍎 Food Calorie Prediction App")
 
 # ------------------ SAMPLE DATA ------------------
-# Internal dataset (no external file needed)
 data = pd.DataFrame({
     "Protein": [3, 1, 25, 8, 10],
     "Fat": [1, 0, 15, 4, 5],
@@ -37,9 +36,10 @@ fat = st.number_input("Fat", min_value=0.0, value=5.0)
 carbs = st.number_input("Carbs", min_value=0.0, value=20.0)
 
 if st.button("Predict"):
+
     input_data = np.array([[protein, fat, carbs]])
 
-    # Prediction
+    # Predictions
     calories = cal_model.predict(input_data)[0]
     health = health_model.predict(input_data)[0]
 
@@ -51,18 +51,28 @@ if st.button("Predict"):
     else:
         st.error("❌ Unhealthy Food")
 
-    # ------------------ GRAPH ------------------
-    st.subheader("📊 Visualization")
+    # ------------------ BAR CHART ------------------
+    st.subheader("📊 Bar Chart")
 
     fig, ax = plt.subplots()
     labels = ["Protein", "Fat", "Carbs"]
     values = [protein, fat, carbs]
 
     ax.bar(labels, values)
-    ax.set_title("Nutritional Values")
-
     st.pyplot(fig)
 
-# ------------------ EXTRA DATA VIEW ------------------
+    # ------------------ LINE GRAPH ------------------
+    st.subheader("📈 Line Graph")
+
+    fig2, ax2 = plt.subplots()
+    ax2.plot(labels, values, marker='o')
+
+    ax2.set_title("Nutrient Trend")
+    ax2.set_xlabel("Nutrients")
+    ax2.set_ylabel("Values")
+
+    st.pyplot(fig2)
+
+# ------------------ DATASET VIEW ------------------
 if st.checkbox("Show Dataset"):
     st.write(data)
