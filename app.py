@@ -1,50 +1,68 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
-st.title("🍔 Food Calorie Predictor")
+st.set_page_config(page_title="Food Calorie App", layout="centered")
 
-# internal dataset
-data = {
-    "Quantity": [100,150,200,250,300,120,180,220,260,310],
-    "Sugar":    [10,15,20,25,30,12,18,22,27,32],
-    "Fat":      [5,8,12,15,18,6,10,14,16,20],
-    "Protein":  [2,3,4,5,6,2,3,4,5,6],
-    "Calories": [150,200,300,350,400,180,260,320,370,420]
-}
+st.title("🍎 Food Calorie Prediction App")
 
-df = pd.DataFrame(data)
+# ------------------ SAMPLE DATA ------------------
+# Internal dataset (no external file needed)
+data = pd.DataFrame({
+    "Protein": [3, 1, 25, 8, 10],
+    "Fat": [1, 0, 15, 4, 5],
+    "Carbs": [30, 25, 0, 12, 20],
+    "Calories": [130, 95, 300, 150, 200],
+    "Healthy": [0, 1, 0, 1, 1]
+})
 
-X = df[["Quantity","Sugar","Fat","Protein"]]
-y = df["Calories"]
+X = data[["Protein", "Fat", "Carbs"]]
+y_cal = data["Calories"]
+y_health = data["Healthy"]
 
-# models
-reg = LinearRegression()
-reg.fit(X, y)
+# ------------------ MODELS ------------------
+cal_model = LinearRegression()
+cal_model.fit(X, y_cal)
 
-df["Health"] = df["Calories"].apply(lambda x: 1 if x < 300 else 0)
+health_model = LogisticRegression()
+health_model.fit(X, y_health)
 
-clf = LogisticRegression()
-clf.fit(X, df["Health"])
-
-# user inputs
+# ------------------ USER INPUT ------------------
 st.header("Enter Food Details")
 
-quantity = st.number_input("Quantity", 0)
-sugar = st.number_input("Sugar", 0)
-fat = st.number_input("Fat", 0)
-protein = st.number_input("Protein", 0)
+protein = st.number_input("Protein", min_value=0.0, value=5.0)
+fat = st.number_input("Fat", min_value=0.0, value=5.0)
+carbs = st.number_input("Carbs", min_value=0.0, value=20.0)
 
 if st.button("Predict"):
-    sample = pd.DataFrame([[quantity, sugar, fat, protein]],
-                          columns=X.columns)
+    input_data = np.array([[protein, fat, carbs]])
 
-    calories = reg.predict(sample)[0]
-    health = clf.predict(sample)[0]
+    # Prediction
+    calories = cal_model.predict(input_data)[0]
+    health = health_model.predict(input_data)[0]
 
-    st.subheader(f"🔥 Predicted Calories: {calories:.2f}")
+    st.subheader("Results")
+    st.write(f"🔥 Predicted Calories: {calories:.2f}")
 
     if health == 1:
         st.success("✅ Healthy Food")
     else:
         st.error("❌ Unhealthy Food")
+
+    # ------------------ GRAPH ------------------
+    st.subheader("📊 Visualization")
+
+    fig, ax = plt.subplots()
+    labels = ["Protein", "Fat", "Carbs"]
+    values = [protein, fat, carbs]
+
+    ax.bar(labels, values)
+    ax.set_title("Nutritional Values")
+
+    st.pyplot(fig)
+
+# ------------------ EXTRA DATA VIEW ------------------
+if st.checkbox("Show Dataset"):
+    st.write(data)
